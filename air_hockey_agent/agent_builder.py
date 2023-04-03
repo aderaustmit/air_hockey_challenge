@@ -1,4 +1,6 @@
+import numpy as np
 from air_hockey_challenge.framework import AgentBase
+
 
 def build_agent(env_info, **kwargs):
     """
@@ -12,4 +14,24 @@ def build_agent(env_info, **kwargs):
          (AgentBase) An instance of the Agent
     """
 
-    raise NotImplementedError
+    return DummyAgent(env_info, **kwargs)
+
+
+class DummyAgent(AgentBase):
+    def __init__(self, env_info, **kwargs):
+        super().__init__(env_info, **kwargs)
+        self.new_start = True
+        self.hold_position = None
+
+    def reset(self):
+        self.new_start = True
+        self.hold_position = None
+
+    def draw_action(self, observation):
+        if self.new_start:
+            self.new_start = False
+            self.hold_position = self.get_joint_pos(observation)
+
+        velocity = np.zeros_like(self.hold_position)
+        action = np.vstack([self.hold_position, velocity])
+        return action
