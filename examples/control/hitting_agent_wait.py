@@ -68,9 +68,7 @@ class HittingAgentWait(AgentBase):
             self.last_cmd = np.vstack([joint_pos, joint_vel])
             self.plan_thread = threading.Thread(target=self._plan_trajectory_thread, args=(puck_pos, ee_pos, joint_pos, joint_vel))
             self.plan_thread.start()
-
-        while len(self.joint_trajectory) == 0 and not self.optimization_failed:
-            time.sleep(0.01)
+            self.plan_thread.join()
 
         if len(self.joint_trajectory) > 0:
             joint_pos_des, joint_vel_des = self.joint_trajectory[0]
