@@ -82,14 +82,19 @@ class HittingAgentWait(AgentBase):
         return self.last_cmd
 
     def _plan_trajectory_thread(self, puck_pos, ee_pos, joint_pos, joint_vel):
-        ee_traj, hit_idx, q_anchor = self.plan_ee_trajectory(puck_pos, ee_pos)
-        _, joint_pos_traj = self.optimizer.optimize_trajectory(ee_traj, joint_pos, joint_vel, q_anchor)
-        # joint_pos_traj = self.get_joint_trajectory(ee_traj)
+        try:
+            ee_traj, hit_idx, q_anchor = self.plan_ee_trajectory(puck_pos, ee_pos)
+            _, joint_pos_traj = self.optimizer.optimize_trajectory(ee_traj, joint_pos, joint_vel, q_anchor)
+            # joint_pos_traj = self.get_joint_trajectory(ee_traj)
+        except:
+            joint_pos_traj = []
+
         if len(joint_pos_traj) > 0:
             self.cubic_spline_interpolation(joint_pos_traj)
         else:
             self.optimization_failed = True
             self.joint_trajectory = np.array([])
+        
 
     def plan_ee_trajectory(self, puck_pos, ee_pos):
         goal_pos = np.array([0.98, 0.0, 0.0])
